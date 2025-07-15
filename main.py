@@ -24,37 +24,41 @@ def receive_update():
 @bot.message_handler(commands=['start'])
 def start(message):
     if message.from_user.id != ALLOWED_USER_ID:
-        bot.reply_to(message, "⛔ Доступ запрещён.")
+        bot.reply_to(message, "тебя тут не ждали. выйди")
         return
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton("🚀 Запуск"), types.KeyboardButton("🧊 Состояние фронта"))
-    bot.send_message(message.chat.id, "🏁 Мини Люкс к бою готов", reply_markup=markup)
+        
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    btn1 = types.KeyboardButton("🚀 Запускай эту лютую машину")
+    btn2 = types.KeyboardButton("🧊 Как дела на северном фронте?")
+    markup.add(btn1, btn2)
 
 @bot.message_handler(func=lambda message: True)
-def handle_code(message):
+def handle_message(message):
     if message.from_user.id != ALLOWED_USER_ID:
-        bot.reply_to(message, "⛔ Нет доступа.")
+        bot.reply_to(message, "⛔тебя тут не ждали. выйди.")
         return
 
-    if message.text == "🚀 Запуск":
-        bot.reply_to(message, "Тачка заведена 🏎️")
-        return
-    elif message.text == "🧊 Состояние фронта":
-        bot.reply_to(message, "Фронт держим! ❄️")
+    if message.text == "🚀 Запускай эту лютую машину":
+        bot.reply_to(message, "🏎️ Учитель Люкс проверяет запуск.")
         return
 
-    if any(x in message.text.lower() for x in ['import os', 'subprocess', 'eval(', '__import__']):
-        bot.reply_to(message, "Ноу-ноу, командирка.")
+    elif message.text == "🧊 Как дела на северном фронте?":
+        bot.reply_to(message, "❄️ Всё под контролем.")
+        return
+        
+    code = message.text
+    if any(x in code.lower() for x in ['import os', 'subprocess', 'open(', 'eval(', '__import__']):
+        bot.reply_to(message, "Ноу-ноу, свити. Это слишком опасно.")
         return
 
     try:
         old_stdout = sys.stdout
         sys.stdout = io.StringIO()
-        exec(message.text)
+        exec(code)
         output = sys.stdout.getvalue()
         sys.stdout = old_stdout
         if not output.strip():
-            output = "✅ Код выполнен, но молчит"
+            output = "✅ Код выполнен, но тихо как северный фронт"
         bot.reply_to(message, output)
     except Exception as e:
         bot.reply_to(message, f"⚠️ Ошибка:\n{e}")
